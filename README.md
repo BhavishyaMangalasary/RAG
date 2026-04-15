@@ -134,8 +134,10 @@ allowing the model to jointly attend to information from
 different representation subspaces at different positions.
 Sources:
 
-attention_is_all_you_need.pdf (page 4)
-attention_is_all_you_need.pdf (page 5)
+- attention_is_all_you_need.pdf (page 4)
+- attention_is_all_you_need.pdf (page 5)
+
+<img width="1790" height="1032" alt="image" src="https://github.com/user-attachments/assets/2f3c4a2e-40f1-4abe-a6b8-6ac990f7dc0e" />
 
 ---
 
