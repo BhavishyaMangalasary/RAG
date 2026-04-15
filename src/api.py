@@ -108,7 +108,7 @@ def ingest_endpoint(req: IngestRequest):
 
     try:
         run_ingestion(file_path=file_path, incremental=True)
-        # Force reload retriever cache
+        # Force clear the cached index so next query loads fresh
         import src.retriever as retriever_module
         retriever_module._vector_store = None
         qa_chain = build_qa_chain()

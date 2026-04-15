@@ -5,6 +5,7 @@ Run:
     streamlit run app.py
 """
 
+import time
 import streamlit as st
 import requests
 
@@ -25,6 +26,7 @@ def get_health():
     except:
         return None
 
+@st.cache_data(ttl=2)
 def get_docs():
     try:
         return requests.get(f"{API_URL}/docs-list", timeout=3).json()
@@ -38,14 +40,18 @@ def ingest_url(url):
             json={"pdf_url": url},
             timeout=120,
         )
-        return resp.json() if resp.status_code == 200 else None, resp.json().get("detail", "Unknown error")
+        if resp.status_code == 200:
+            return resp.json(), None
+        return None, resp.json().get("detail", "Unknown error")
     except Exception as e:
         return None, str(e)
 
 def rebuild_index():
     try:
         resp = requests.post(f"{API_URL}/ingest-all", timeout=300)
-        return resp.json() if resp.status_code == 200 else None, resp.json().get("detail", "Unknown error")
+        if resp.status_code == 200:
+            return resp.json(), None
+        return None, resp.json().get("detail", "Unknown error")
     except Exception as e:
         return None, str(e)
 
@@ -80,6 +86,17 @@ if "status_msg" not in st.session_state:
     st.session_state.status_msg = None
 if "status_type" not in st.session_state:
     st.session_state.status_type = None
+if "needs_refresh" not in st.session_state:
+    st.session_state.needs_refresh = False
+
+
+# ── Auto refresh after ingestion ───────────────────────────────────────────
+
+if st.session_state.needs_refresh:
+    st.session_state.needs_refresh = False
+    st.cache_data.clear()
+    time.sleep(0.5)
+    st.rerun()
 
 
 # ── Sidebar ────────────────────────────────────────────────────────────────
@@ -121,31 +138,36 @@ with st.sidebar:
                     st.session_state.messages = []
                     st.session_state.status_msg = "All papers and index cleared"
                     st.session_state.status_type = "success"
+                    st.session_state.needs_refresh = True
                 else:
                     st.session_state.status_msg = "Failed to clear"
                     st.session_state.status_type = "error"
+                    st.session_state.needs_refresh = True
 
     st.divider()
 
     # ── Quick add by ID ────────────────────────────────────────────────────
-    st.subheader("Quick Add by arXiv ID")
-    st.caption("Just the ID e.g. 1706.03762")
+    st.subheader("Add a Paper")
+    st.caption("Enter an arXiv ID e.g. 1706.03762")
     arxiv_id = st.text_input(
         "arXiv ID",
         placeholder="1706.03762",
-        key="arxiv_id_input"
+        key="arxiv_id_input",
+        label_visibility="collapsed"
     )
     if st.button("Fetch + Ingest", use_container_width=True, type="primary"):
         if arxiv_id.strip():
             url = f"https://arxiv.org/pdf/{arxiv_id.strip()}"
-            with st.spinner(f"Fetching {arxiv_id.strip()}..."):
+            with st.spinner(f"Downloading and indexing {arxiv_id.strip()}..."):
                 result, err = ingest_url(url)
                 if result:
-                    st.session_state.status_msg = result.get("message", "Paper added!")
+                    st.session_state.status_msg = f"Added! Paper is ready to query."
                     st.session_state.status_type = "success"
+                    st.session_state.needs_refresh = True
                 else:
                     st.session_state.status_msg = f"Failed: {err}"
                     st.session_state.status_type = "error"
+                    st.session_state.needs_refresh = True
         else:
             st.warning("Enter an arXiv ID first")
 
@@ -153,32 +175,35 @@ with st.sidebar:
 
     # ── Rebuild index ──────────────────────────────────────────────────────
     st.subheader("Rebuild Index")
-    st.caption("Use if you deleted vector_store/ or changed chunk settings")
+    st.caption("Use if index is out of sync with your papers")
     if st.button("Rebuild from all papers", use_container_width=True):
         if docs["count"] > 0:
-            with st.spinner("Rebuilding index from all papers..."):
+            with st.spinner("Rebuilding index..."):
                 result, err = rebuild_index()
                 if result:
                     st.session_state.status_msg = result.get("message", "Index rebuilt!")
                     st.session_state.status_type = "success"
+                    st.session_state.needs_refresh = True
                 else:
                     st.session_state.status_msg = f"Failed: {err}"
                     st.session_state.status_type = "error"
+                    st.session_state.needs_refresh = True
         else:
             st.warning("No papers to rebuild from")
 
     st.divider()
 
     # ── Settings ───────────────────────────────────────────────────────────
-    top_k = st.slider("Chunks to retrieve", min_value=1, max_value=8, value=4)
+    top_k = st.slider("Chunks to retrieve", min_value=1, max_value=8, value=6)
     st.caption("Higher = more context, slightly slower")
 
     if st.button("Clear Chat", use_container_width=True):
         st.session_state.messages = []
         st.session_state.status_msg = "Chat cleared"
         st.session_state.status_type = "info"
+        st.session_state.needs_refresh = True
 
-    # Show any status messages at the bottom of sidebar
+    # ── Status messages ────────────────────────────────────────────────────
     if st.session_state.status_msg:
         msg  = st.session_state.status_msg
         kind = st.session_state.status_type
@@ -199,26 +224,26 @@ st.caption("Powered by Llama 3 · FAISS · LangChain · 100% free")
 
 docs = get_docs()
 
-# ── Welcome screen (no papers yet) ────────────────────────────────────────
+# ── Welcome screen ─────────────────────────────────────────────────────────
 if docs["count"] == 0:
     st.info("""
     **Welcome! No papers ingested yet.**
 
     Here is how to get started:
 
-    1. In the sidebar, find **Quick Add by arXiv ID**
+    1. In the sidebar find **Add a Paper**
     2. Type one of these IDs and click **Fetch + Ingest**:
        - `1706.03762` — Attention Is All You Need
        - `2005.11401` — RAG paper
        - `2106.09685` — LoRA
        - `1810.04805` — BERT
+       - `2310.15213` — SELF-RAG
     3. Wait ~30 seconds while it downloads and indexes
     4. Start asking questions!
     """)
 
-# ── Chat interface (papers loaded) ────────────────────────────────────────
+# ── Chat interface ─────────────────────────────────────────────────────────
 else:
-    # Add welcome message if chat is empty
     if not st.session_state.messages:
         st.session_state.messages.append({
             "role":    "assistant",
@@ -238,17 +263,15 @@ else:
 
     # Chat input
     if prompt := st.chat_input("Ask about your papers..."):
-        # Show user message
         st.session_state.messages.append({
             "role": "user", "content": prompt, "sources": []
         })
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Get and show answer
         with st.chat_message("assistant"):
             with st.spinner("Searching papers and generating answer..."):
-                result = ask_question(prompt, top_k)
+                result  = ask_question(prompt, top_k)
                 answer  = result["answer"]
                 sources = result["sources"]
 
@@ -259,7 +282,6 @@ else:
                         st.markdown(f"**{s['file']}** — page {s['page']}")
                         st.caption(f"\"{s['excerpt'][:120]}\"")
 
-        # Save to history
         st.session_state.messages.append({
             "role":    "assistant",
             "content": answer,
