@@ -47,3 +47,47 @@ Research Paper Copilot is an enterprise-grade AI assistant that lets you query a
 | Containerization | Docker                                          |
 
 ---
+
+## ⚙️ Installation
+
+### Prerequisites
+- Python 3.10 or higher
+- Free Groq API key from [console.groq.com](https://console.groq.com)
+
+### Steps
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/YOUR_USERNAME/rag-research-copilot
+cd rag-research-copilot
+
+# 2. Create virtual environment
+python3 -m venv venv
+source venv/bin/activate        # Mac/Linux
+venv\Scripts\activate           # Windows
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Set up environment variables
+cp .env.example .env
+# Open .env and paste your GROQ_API_KEY
+```
+
+---
+
+## 🚀 Usage
+
+### Start the app
+
+```bash
+# Terminal 1 — start the API
+uvicorn src.api:app --reload --port 8000
+
+# Terminal 2 — start the UI
+streamlit run app.py
+```
+
+Open your browser at `http://localhost:8501`
+
+### Add papers and ask questions
