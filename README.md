@@ -24,11 +24,10 @@ Research Paper Copilot is an enterprise-grade AI assistant that lets you query a
 - Add papers directly from the browser — no terminal needed
 - Semantic search across all ingested papers simultaneously
 - Grounded answers with page level citations
-- Incremental ingestion — add new papers without rebuilding index
-- Clear and rebuild index from the UI
 - Cross paper questions — ask across multiple papers at once
-- REST API backend — easily extensible
-- Evaluation pipeline using RAGAs metrics
+- Clear all papers and start fresh from the UI
+- Rebuild index from the UI without touching the terminal
+- REST API backend built with FastAPI
 
 ---
 
@@ -43,8 +42,7 @@ Research Paper Copilot is an enterprise-grade AI assistant that lets you query a
 | Orchestration    | LangChain                                       |
 | Backend          | FastAPI                                         |
 | Frontend         | Streamlit                                       |
-| Evaluation       | RAGAs                                           |
-| Containerization | Docker                                          |
+
 
 ---
 
