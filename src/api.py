@@ -27,7 +27,6 @@ app.add_middleware(
 
 qa_chain = None
 
-
 @app.on_event("startup")
 async def startup():
     global qa_chain

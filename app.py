@@ -1,10 +1,3 @@
-"""
-Streamlit Chat UI
------------------
-Run:
-    streamlit run app.py
-"""
-
 import time
 import streamlit as st
 import requests
