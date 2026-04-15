@@ -1,0 +1,19 @@
+# Secret keys — NEVER upload
+.env
+
+# Virtual environment — too large, everyone installs their own
+venv/
+
+# FAISS index — gets rebuilt from papers
+vector_store/
+
+# Downloaded PDFs — gets rebuilt from fetcher
+data/docs/
+
+# Python cache files — not needed
+__pycache__/
+*.pyc
+*.pyo
+
+# Mac system file — useless to others
+.DS_Store

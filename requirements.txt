@@ -1,0 +1,28 @@
+# LangChain core
+langchain==0.2.16
+langchain-community==0.2.16
+langchain-groq==0.1.9
+
+# Free local embeddings (HuggingFace)
+sentence-transformers==3.0.1
+
+# Vector store
+faiss-cpu==1.9.0.post1
+
+# PDF loading
+pypdf==4.3.1
+
+# Environment + utils
+python-dotenv==1.0.1
+
+# API backend
+fastapi==0.112.0
+uvicorn==0.30.6
+
+# Frontend UI
+streamlit==1.37.0
+
+# Evaluation
+ragas==0.1.21
+datasets==2.21.0
+pandas==2.2.2
