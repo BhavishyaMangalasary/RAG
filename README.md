@@ -100,6 +100,7 @@ Open your browser at `http://localhost:8501`
 
 ## 📁 Project Structure
 
+```bash
 rag-research-copilot/
 │
 ├── src/
@@ -118,6 +119,7 @@ rag-research-copilot/
 ├── Dockerfile          # containerization
 ├── .env.example        # environment variables template
 └── README.md
+```
 
 ---
 
