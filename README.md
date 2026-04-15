@@ -91,3 +91,62 @@ streamlit run app.py
 Open your browser at `http://localhost:8501`
 
 ### Add papers and ask questions
+- In the sidebar, type an arXiv ID e.g. 1706.03762
+- Click Fetch + Ingest
+- Wait ~30 seconds
+- Ask questions in the chat box
+
+---
+
+## 📁 Project Structure
+
+rag-research-copilot/
+│
+├── src/
+│   ├── config.py       # all settings loaded from .env
+│   ├── fetcher.py      # downloads papers from arXiv API
+│   ├── ingest.py       # chunks, embeds, builds FAISS index
+│   ├── retriever.py    # searches FAISS for relevant chunks
+│   ├── chain.py        # connects retriever to Llama 3
+│   └── api.py          # FastAPI backend with all endpoints
+│
+├── eval/
+│   └── evaluate.py     # RAGAs quality evaluation
+│
+├── app.py              # Streamlit chat UI
+├── requirements.txt    # all dependencies
+├── Dockerfile          # containerization
+├── .env.example        # environment variables template
+└── README.md
+
+---
+
+## 📊 Results / Output
+
+### Sample answer with citation
+
+Q: What is multi-head attention?
+A: Multi-head attention runs the attention mechanism multiple
+times in parallel with different learned projections,
+allowing the model to jointly attend to information from
+different representation subspaces at different positions.
+Sources:
+
+attention_is_all_you_need.pdf (page 4)
+attention_is_all_you_need.pdf (page 5)
+
+---
+
+## 👤 Author
+
+**Bhavishya**
+
+---
+
+## 🌟 Acknowledgements
+
+- [LangChain](https://langchain.com) for the RAG orchestration framework
+- [Groq](https://console.groq.com) for free Llama 3 inference
+- [HuggingFace](https://huggingface.co) for free local embeddings
+- [FAISS](https://github.com/facebookresearch/faiss) for vector similarity search
+- [arXiv](https://arxiv.org) for free access to research papers
